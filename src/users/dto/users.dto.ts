@@ -19,7 +19,11 @@ export class CreateUserDto {
   @MaxLength(72)
   password!: string;
 }
-
+export class DeleteUserDto{
+  @IsEmail()
+  @MaxLength(255)
+  email!: string;
+}
 /** Alle Felder optional — für PATCH /users/:id. Passwort läuft über ChangePasswordDto. */
 export class UpdateUserDto {
   @IsOptional()
@@ -44,4 +48,9 @@ export class LoginUserDto {
 
   @IsString()
   password!: string;
+}
+
+export class FindOneUserDto{
+   @IsEmail()
+  email!: string;
 }
