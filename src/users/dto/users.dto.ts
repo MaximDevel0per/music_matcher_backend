@@ -1,56 +1,10 @@
-import { Exclude, Expose, Type } from 'class-transformer';
-import {
-  IsEmail,
-  IsOptional,
-  IsString,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, MaxLength } from 'class-validator';
 
-
-/** Payload zum Anlegen eines neuen Users. */
-export class CreateUserDto {
+/** Payload für PATCH /users/me — die Identität kommt aus dem JWT. */
+export class UpdateEmailDto {
+  @ApiProperty({ example: 'neue-adresse@example.com', maxLength: 255 })
   @IsEmail()
   @MaxLength(255)
-  email!: string;
-
-  @IsString()
-  @MinLength(8)
-  @MaxLength(72)
-  password!: string;
-}
-export class DeleteUserDto{
-  @IsEmail()
-  @MaxLength(255)
-  email!: string;
-}
-/** Alle Felder optional — für PATCH /users/:id. Passwort läuft über ChangePasswordDto. */
-export class UpdateUserDto {
-  @IsOptional()
-  @IsEmail()
-  @MaxLength(255)
-  email?: string;
-}
-
-export class ChangePasswordDto {
-  @IsString()
-  currentPassword!: string;
-
-  @IsString()
-  @MinLength(8)
-  @MaxLength(72)
-  newPassword!: string;
-}
-
-export class LoginUserDto {
-  @IsEmail()
-  email!: string;
-
-  @IsString()
-  password!: string;
-}
-
-export class FindOneUserDto{
-   @IsEmail()
   email!: string;
 }

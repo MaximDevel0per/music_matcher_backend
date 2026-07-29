@@ -26,3 +26,24 @@ export class SignInDto {
     @MaxLength(72)
     password!: string;
 }
+
+/** Löschen des eigenen Accounts — Passwort dient als Bestätigung. */
+export class DeleteAccountDto {
+  @ApiProperty({ example: 'geheim12345' })
+  @IsString()
+  password!: string;
+}
+
+/** Die Identität kommt aus dem JWT, nicht aus dem Body — deshalb kein email-Feld. */
+export class ChangePasswordDto {
+  @ApiProperty({ example: 'geheim12345' })
+  @IsString()
+  currentPassword!: string;
+
+  @ApiProperty({ example: 'neuesGeheim123', minLength: 8, maxLength: 72 })
+  @IsString()
+  @MinLength(8)
+  @MaxLength(72)
+  newPassword!: string;
+}
+

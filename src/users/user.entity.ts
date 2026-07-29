@@ -8,6 +8,7 @@ export class User {
   @Column({unique: true})
   email: string;
 
-  @Column()
+  /** select: false — der Hash wird nur geladen, wenn eine Query ihn explizit anfordert. */
+  @Column({ select: false })
   password: string;
 }
