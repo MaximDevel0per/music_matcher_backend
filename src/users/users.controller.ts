@@ -1,21 +1,17 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, DeleteUserDto, LoginUserDto } from './dto/users.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { User } from './user.entity';
 
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
     constructor(private usersService: UsersService){}
     
-    @Post()
-    async createUser(@Body() user: CreateUserDto) {
-        await this.usersService.createUser(user);
-    }
-    @Post()
-    async deleteUser(@Body() user: DeleteUserDto) {
-        await this.usersService.deleteUser(user);
-    }
     @Get()
-    async loginUser(@Body() user: LoginUserDto) {
-        await this.usersService.loginUser(user);
+    async getAllUsers(): Promise<User[]|null>{
+        const users = await this.usersService.getAllUser();
+        return users
     }
+   
 }

@@ -13,26 +13,22 @@ export class UsersService {
         private userRepository: Repository<User>,
     ){}
 
-    async createUser(user: CreateUserDto) {
+    async createUser(user: CreateUserDto): Promise<User> {
         const hashedPassword = await hash(user.password, 10);
         let newUser = this.userRepository.create({email:user.email,password:hashedPassword});
-        await this.userRepository.save(newUser)
+        return await this.userRepository.save(newUser)
     }
     async deleteUser(user: DeleteUserDto): Promise<boolean> {
         let res = await this.userRepository.delete({email: user.email})
         return !!res.affected
     }
-    async loginUser(user: LoginUserDto): Promise<string> {
-        const found = await this.userRepository.findOne({where: {email: user.email}});
-        if (!found || !(await compare(user.password, found.password))) {
-            throw new UnauthorizedException('Ungültige Zugangsdaten');
-        }
-        throw new NotImplementedException("");
-    }
-
-
-    async findOne(user: FindOneUserDto): Promise<User | null> {
-        const found = await this.userRepository.findOne({where: {email: user.email}});
+    async findOne(email: string): Promise<User | null> {
+        const found = await this.userRepository.findOne({where: {email: email}});
         return found;
+  }
+
+   async getAllUser(): Promise<User[] | null> {
+        const allUser = await this.userRepository.find();
+        return allUser;
   }
 }   
