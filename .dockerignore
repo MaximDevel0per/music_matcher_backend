@@ -1,0 +1,24 @@
+# Alles, was nicht in den Build-Kontext gehört. Spart Übertragungszeit
+# zum Docker-Daemon — auf einem Raspberry Pi merkt man das deutlich.
+node_modules
+dist
+coverage
+
+# Die Datenbank gehört ins Volume, nicht ins Image
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+data
+
+# Geheimnisse kommen zur Laufzeit über env_file, niemals ins Image
+.env
+.env.*
+!.env.example
+
+.git
+.gitignore
+*.log
+.vscode
+.idea
+README.md

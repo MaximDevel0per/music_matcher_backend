@@ -1,0 +1,66 @@
+# syntax=docker/dockerfile:1
+
+# Debian-Basis statt Alpine: better-sqlite3 und bcrypt sind native Module.
+# Für Alpine (musl) gibt es oft keine passenden Prebuilds, dann müsste alles
+# aus dem Quelltext übersetzt werden — auf einem Raspberry Pi dauert das lange.
+ARG NODE_VERSION=22-bookworm-slim
+
+# ---------------------------------------------------------------------------
+# 1. Abhängigkeiten inkl. Dev-Pakete — hier wird kompiliert
+# ---------------------------------------------------------------------------
+FROM node:${NODE_VERSION} AS deps
+WORKDIR /app
+
+# node-gyp braucht diese Werkzeuge, falls kein Prebuild zur CPU-Architektur passt
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3 make g++ ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# ---------------------------------------------------------------------------
+# 2. TypeScript übersetzen
+# ---------------------------------------------------------------------------
+FROM deps AS build
+WORKDIR /app
+COPY . .
+RUN npm run build
+
+# ---------------------------------------------------------------------------
+# 3. Nur die Laufzeit-Abhängigkeiten, erneut nativ übersetzt
+# ---------------------------------------------------------------------------
+FROM node:${NODE_VERSION} AS prod-deps
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3 make g++ ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+# ---------------------------------------------------------------------------
+# 4. Laufzeit — ohne Compiler, ohne Quelltext
+# ---------------------------------------------------------------------------
+FROM node:${NODE_VERSION} AS runtime
+ENV NODE_ENV=production
+WORKDIR /app
+
+# Verzeichnis für die SQLite-Datei; darauf zeigt später das Volume
+RUN mkdir -p /app/data && chown -R node:node /app
+
+COPY --from=prod-deps --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/dist ./dist
+COPY --chown=node:node package.json ./
+
+ENV PORT=3000 \
+    DATABASE_PATH=/app/data/db.sqlite
+
+# Nicht als root laufen lassen
+USER node
+EXPOSE 3000
+
+# Node 18+ bringt fetch mit — spart curl/wget im Image
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+CMD ["node", "dist/main"]
