@@ -3,7 +3,10 @@
 # Debian-Basis statt Alpine: better-sqlite3 und bcrypt sind native Module.
 # Für Alpine (musl) gibt es oft keine passenden Prebuilds, dann müsste alles
 # aus dem Quelltext übersetzt werden — auf einem Raspberry Pi dauert das lange.
-ARG NODE_VERSION=22-bookworm-slim
+#
+# Node 24 wegen npm 11: die package-lock.json wurde mit npm 11 erzeugt, und
+# npm 10 (in node:22) lehnt sie mit "Missing … from lock file" ab.
+ARG NODE_VERSION=24-bookworm-slim
 
 # ---------------------------------------------------------------------------
 # 1. Abhängigkeiten inkl. Dev-Pakete — hier wird kompiliert
