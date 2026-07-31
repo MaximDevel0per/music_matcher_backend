@@ -19,7 +19,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3 make g++ ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY package.json package-lock.json ./
+# .npmrc muss mit: darin steht, welche Installationsskripte laufen dürfen.
+# Ohne sie bleiben die nativen Module ungebaut (siehe Kommentar in der Datei).
+COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 
 # ---------------------------------------------------------------------------
@@ -38,8 +40,16 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
         python3 make g++ ca-certificates \
     && rm -rf /var/lib/apt/lists/*
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+COPY package.json package-lock.json .npmrc ./
+# --foreground-scripts zeigt die Ausgabe von prebuild-install bzw. node-gyp.
+# Auf arm64 gibt es nicht für jede Node-Version ein fertiges Binary; dann
+# übersetzt node-gyp, und man will sehen, ob das gelingt.
+RUN npm ci --omit=dev --foreground-scripts
+
+# Sicherheitsnetz: lieber scheitert der Build hier, als dass ein Image entsteht,
+# das erst beim Start mit "Could not locate the bindings file" umfällt — auf
+# einem Raspberry Pi merkt man das sonst erst nach einer halben Stunde.
+RUN node -e "require('better-sqlite3'); require('bcrypt'); console.log('native Module in Ordnung')"
 
 # ---------------------------------------------------------------------------
 # 4. Laufzeit — ohne Compiler, ohne Quelltext
