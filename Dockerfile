@@ -72,8 +72,11 @@ ENV PORT=3000 \
 USER node
 EXPOSE 3000
 
-# Node 18+ bringt fetch mit — spart curl/wget im Image
+# Node 18+ bringt fetch mit — spart curl/wget im Image.
+# Geprüft wird /swagger, weil dort die einzige Route ohne Token liegt.
+# Sauberer wäre ein eigener /health-Endpunkt: dann hängt die Betriebsprüfung
+# nicht an der Dokumentation, die man in Produktion abschalten möchte.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+    CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/swagger').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 CMD ["node", "dist/main"]

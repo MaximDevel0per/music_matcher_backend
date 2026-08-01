@@ -55,5 +55,5 @@ function initalizeSwagger(app: INestApplication):void {
   .addBearerAuth()
   .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+  SwaggerModule.setup('swagger', app, documentFactory);
 }
