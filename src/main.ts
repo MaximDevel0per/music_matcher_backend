@@ -53,6 +53,8 @@ function initalizeSwagger(app: INestApplication):void {
   .setDescription('The API description')
   .setVersion('1.0')
   .addBearerAuth()
+  .addServer('/api', 'öffentlich (hinter dem nginx-Proxy)')
+  .addServer('/', 'lokal (direkt auf Port 3000)')
   .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, documentFactory);
