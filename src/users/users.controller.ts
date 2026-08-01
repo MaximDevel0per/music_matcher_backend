@@ -19,12 +19,12 @@ export class UsersController {
     constructor(private usersService: UsersService) {}
 
     /** Alle Nutzer auflisten — noch ohne Rollenprüfung, später Admin-only. */
-    @ApiResponse({ status: 200, description: 'Liste aller Nutzer, je id und email.' })
-    @ApiResponse({ status: 401, description: 'Token fehlt, ist ungültig oder abgelaufen.' })
-    @Get('all')
-    async getAllUsers(): Promise<User[]> {
-        return await this.usersService.getAllUser();
-    }
+    // @ApiResponse({ status: 200, description: 'Liste aller Nutzer, je id und email.' })
+    // @ApiResponse({ status: 401, description: 'Token fehlt, ist ungültig oder abgelaufen.' })
+    // @Get('all')
+    // async getAllUsers(): Promise<User[]> {
+    //     return await this.usersService.getAllUser();
+    // }
 
     /** Eigenes Profil aus der DB — Identität kommt aus dem JWT. */
     @ApiResponse({ status: 200, description: 'Eigenes Profil mit id und email.' })
